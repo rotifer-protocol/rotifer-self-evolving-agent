@@ -11,7 +11,7 @@ mcp:
   server:
     command: npx
     args:
-      - "@rotifer/mcp-server@0.7.9"
+      - "@rotifer/mcp-server@0.8.1"
 ---
 
 # Self-Evolving Agent
@@ -115,11 +115,10 @@ No Gene is replaced without your confirmation.
 ## Security & Transparency
 
 ### Runtime dependency
-This Skill runs [`@rotifer/mcp-server@0.7.9`](https://www.npmjs.com/package/@rotifer/mcp-server/v/0.7.9) via `npx` at runtime. The package is **fetched from npm on first use** and cached locally. This is a standard MCP Skill pattern but means you are trusting remote code — review the source before use.
+This Skill runs [`@rotifer/mcp-server@0.8.1`](https://www.npmjs.com/package/@rotifer/mcp-server/v/0.8.1) via `npx` at runtime. The package is **fetched from npm on first use** and cached locally. This is a standard MCP Skill pattern but means you are trusting remote code — review the source before use.
 
 - **Source code**: [github.com/rotifer-protocol/rotifer-mcp-server](https://github.com/rotifer-protocol/rotifer-mcp-server)
-- **Integrity (SHA-512)**: `sha512-lyfSQu0pjz2b+x9VGpm1ULW6A0yYr3Tq69gk4Rio7f9LHBJ8FkZ8ktWmH9ubz2JiKiZ21FubVrKN7YxjHq5rWQ==`
-- **Verify**: `npm view @rotifer/mcp-server@0.7.9 dist.integrity`
+- **Verify**: `npm view @rotifer/mcp-server@0.8.1 dist.integrity`
 
 ### Network requests
 All API calls go to the Rotifer public API at `rotifer.dev` (hosted on Supabase). The MCP server is designed to contact only this endpoint. You can verify by capturing network traffic on first use.
