@@ -1,6 +1,6 @@
 ---
-name: rotifer-evolving-agent
-version: 2.0.2
+name: rotifer-self-evolving-agent
+version: 2.2.1
 description: Your Agent evolves itself — scans capabilities, benchmarks against Arena rankings, and upgrades automatically
 author: rotifer-protocol
 permissions:
@@ -11,10 +11,10 @@ mcp:
   server:
     command: npx
     args:
-      - "@rotifer/mcp-server@0.8.1"
+      - "@rotifer/mcp-server@0.8.5"
 ---
 
-# Self-Evolving Agent
+# Rotifer Self Evolving Agent
 
 Your Agent gets stronger by competing, not by configuring. Scan capabilities, benchmark against [Arena rankings](https://rotifer.dev), and upgrade to fitter alternatives — driven by objective performance data, not opinions.
 
@@ -22,21 +22,21 @@ Your Agent gets stronger by competing, not by configuring. Scan capabilities, be
 
 ### Evolve Your Agent
 Scan your Agent's current setup and get upgrade recommendations:
-```
+```bash
 /evolve
 ```
 This analyzes your local Agent configuration, identifies capabilities below Arena median, and recommends higher-performing replacements.
 
 ### Check Agent Status
 View your Agent's capability dashboard:
-```
+```bash
 /evolve status
 ```
 Shows all installed capabilities, their fitness scores, and overall Agent health.
 
 ### Upgrade a Capability
 Replace a capability with a stronger alternative:
-```
+```bash
 /evolve upgrade <name>
 ```
 Finds the top-ranked alternative in the same domain and installs it.
@@ -45,7 +45,7 @@ Finds the top-ranked alternative in the same domain and installs it.
 
 ### Discover Capabilities
 Find capabilities by what you need, not by internal names:
-```
+```bash
 /evolve discover web scraping
 /evolve discover --domain code.format
 /evolve discover --fidelity Native
@@ -53,32 +53,32 @@ Find capabilities by what you need, not by internal names:
 
 ### Compare Candidates
 Side-by-side fitness comparison:
-```
+```bash
 /evolve compare <id-1> <id-2>
 ```
 
 ### Arena Rankings
 See top performers in any domain:
-```
+```bash
 /evolve arena search.web
 /evolve arena code.format
 ```
 
 ### Inspect Details
 Full technical details for a specific capability:
-```
+```bash
 /evolve inspect <id>
 ```
 
 ## Agent Management
 
 ### Create a New Agent
-```
+```bash
 /evolve create-agent <name>
 ```
 
 ### Run Your Agent
-```
+```bash
 /evolve run-agent <name>
 ```
 
@@ -86,7 +86,7 @@ Full technical details for a specific capability:
 
 Under the hood, Rotifer uses **Genes** — atomic, transferable AI capabilities that compete in an **Arena**. The fittest Genes (measured by the fitness function **F(g)**) survive and are automatically selected.
 
-```
+```text
 F(g) = [S_r · ln(1 + C_util) · (1 + R_rob)] / [L · Resource_Cost]
 ```
 
@@ -115,10 +115,10 @@ No Gene is replaced without your confirmation.
 ## Security & Transparency
 
 ### Runtime dependency
-This Skill runs [`@rotifer/mcp-server@0.8.1`](https://www.npmjs.com/package/@rotifer/mcp-server/v/0.8.1) via `npx` at runtime. The package is **fetched from npm on first use** and cached locally. This is a standard MCP Skill pattern but means you are trusting remote code — review the source before use.
+This Skill runs [`@rotifer/mcp-server@0.8.5`](https://www.npmjs.com/package/@rotifer/mcp-server/v/0.8.5) via `npx` at runtime. The package is **fetched from npm on first use** and cached locally. This is a standard MCP Skill pattern but means you are trusting remote code — review the source before use.
 
 - **Source code**: [github.com/rotifer-protocol/rotifer-mcp-server](https://github.com/rotifer-protocol/rotifer-mcp-server)
-- **Verify**: `npm view @rotifer/mcp-server@0.8.1 dist.integrity`
+- **Verify**: `npm view @rotifer/mcp-server@0.8.5 dist.integrity`
 
 ### Network requests
 All API calls go to the Rotifer public API at `rotifer.dev` (hosted on Supabase). The MCP server is designed to contact only this endpoint. You can verify by capturing network traffic on first use.
@@ -136,7 +136,7 @@ The MCP server uses only the **Supabase anon key** (a public, client-safe key pr
 
 ## Links
 
-- [Developer Portal](https://rotifer.dev)
+- [Creator Portal](https://rotifer.dev)
 - [Capability Marketplace](https://rotifer.ai)
 - [Documentation](https://rotifer.dev/docs)
 - [Protocol Specification](https://github.com/rotifer-protocol/rotifer-spec)
