@@ -1,4 +1,4 @@
-# Self-Evolving Agent
+# Rotifer Self Evolving Agent
 
 > Your Agent gets stronger by competing, not by configuring. Scan capabilities, benchmark against Arena rankings, and upgrade automatically.
 
@@ -6,17 +6,17 @@
 
 Install from ClawHub:
 1. Open OpenClaw
-2. Search for "rotifer-evolving-agent" in the Skill marketplace
+2. Search for "rotifer-self-evolving-agent" in the Skill marketplace
 3. Click "Install"
 
 Or manually:
 ```bash
-cp -r rotifer-openclaw-skill/ ~/.openclaw/workspace/skills/rotifer-evolving-agent/
+cp -r rotifer-self-evolving-agent/ ~/.openclaw/workspace/skills/rotifer-self-evolving-agent/
 ```
 
 ## Usage
 
-```
+```bash
 /evolve                          # Scan Agent, recommend upgrades
 /evolve status                   # Agent capability dashboard
 /evolve upgrade <name>           # Replace with stronger alternative

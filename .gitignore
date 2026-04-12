@@ -1,2 +1,29 @@
 # ADR-106 L4a: prevent internal/ cross-contamination
 internal/
+
+# Dependencies
+node_modules/
+
+# Build
+dist/
+build/
+coverage/
+
+# Wrangler
+.wrangler/
+
+# Environment
+.env
+.env.*
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+
+# Temp
+*.log
+.temp/
