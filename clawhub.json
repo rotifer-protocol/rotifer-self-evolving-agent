@@ -21,7 +21,7 @@
   "repository": "https://github.com/rotifer-protocol/rotifer-self-evolving-agent",
   "mcp_server": {
     "command": "npx",
-    "args": ["@rotifer/mcp-server@0.8.5"]
+    "args": ["@rotifer/mcp-server@0.8.6"]
   },
   "permissions": [
     "network:outbound"
