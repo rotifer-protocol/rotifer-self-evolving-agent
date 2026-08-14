@@ -22,7 +22,7 @@
   "mcp_server": {
     "command": "npx",
     "args": [
-      "@rotifer/mcp-server@0.10.0"
+      "@rotifer/mcp-server@0.11.0"
     ]
   },
   "permissions": [
