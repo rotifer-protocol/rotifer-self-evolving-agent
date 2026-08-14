@@ -120,6 +120,18 @@ jobs:
           fi
           echo "✅ token present"
 
+      # The CLI does not read a token from the environment — it only reads the
+      # config file that `clawhub login` writes (CLAWHUB_CONFIG_PATH,
+      # CLAWHUB_REGISTRY, CLAWHUB_SITE and CLAWHUB_WORKDIR are the only
+      # CLAWHUB_* variables it looks at). Passing CLAWHUB_TOKEN to `publish`
+      # alone gets "Not logged in", which is how clawhub-v2.3.0 failed: dry-run
+      # needs no auth, so every check before the first real publish passed.
+      - name: Log in
+        if: steps.mode.outputs.dry_run == 'false'
+        env:
+          CLAWHUB_TOKEN: ${{ secrets.CLAWHUB_TOKEN }}
+        run: npx --yes clawhub@0.23.3 login --token "$CLAWHUB_TOKEN" --no-browser
+
       - name: Publish
         env:
           CLAWHUB_TOKEN: ${{ secrets.CLAWHUB_TOKEN }}
