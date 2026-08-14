@@ -1,0 +1,142 @@
+name: Publish to ClawHub
+
+# ClawHub was the only published distribution surface with no automation: every
+# release meant running the CLI by hand, which is how the manifest drifted three
+# versions behind the MCP server it pins.
+#
+# Real publishes happen only on a `clawhub-v*` tag or a deliberate
+# workflow_dispatch. Pull requests run the same path with --dry-run, so the
+# publish command is exercised on every change instead of being discovered
+# broken on release day.
+
+on:
+  push:
+    tags: ["clawhub-v*"]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Preview without publishing"
+        type: boolean
+        default: true
+
+permissions:
+  contents: read
+
+jobs:
+  manifest-consistency:
+    name: Manifest Consistency
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+
+      # The MCP server version is written in clawhub.json and repeated several
+      # times in SKILL.md. A previous bump updated SKILL.md and missed
+      # clawhub.json, leaving the manifest pinning 0.8.6 while the Skill text
+      # promised 0.9.1. Nothing caught it, so this job does.
+      - name: Every @rotifer/mcp-server pin agrees
+        run: |
+          python3 - <<'PY'
+          import json, re, sys, pathlib
+
+          PIN = re.compile(r'@rotifer/mcp-server@([0-9]+\.[0-9]+\.[0-9]+)')
+
+          manifest = json.loads(pathlib.Path('clawhub.json').read_text(encoding='utf-8'))
+          args = manifest.get('mcp_server', {}).get('args', [])
+          manifest_pins = {m.group(1) for a in args for m in [PIN.search(a)] if m}
+          if not manifest_pins:
+              print("::error::clawhub.json does not pin @rotifer/mcp-server to an exact version")
+              sys.exit(1)
+
+          found = {p: sorted(manifest_pins) for p in ['clawhub.json']}
+          for md in sorted(pathlib.Path('.').glob('*.md')):
+              versions = sorted({m.group(1) for m in PIN.finditer(md.read_text(encoding='utf-8', errors='replace'))})
+              if versions:
+                  found[str(md)] = versions
+
+          for path, versions in found.items():
+              print(f"  {path}: {', '.join(versions)}")
+
+          everything = {v for versions in found.values() for v in versions}
+          if len(everything) > 1:
+              print(f"::error::@rotifer/mcp-server is pinned to more than one version: {', '.join(sorted(everything))}")
+              print("::error::Update every occurrence together — clawhub.json and each markdown file.")
+              sys.exit(1)
+
+          print(f"✅ all pins agree on {everything.pop()}")
+          PY
+
+      # A tag that disagrees with the manifest would publish a version nobody
+      # asked for, under a name nobody expects.
+      - name: Tag matches the manifest version
+        if: startsWith(github.ref, 'refs/tags/clawhub-v')
+        run: |
+          TAG_VERSION="${GITHUB_REF_NAME#clawhub-v}"
+          MANIFEST_VERSION="$(python3 -c "import json;print(json.load(open('clawhub.json'))['version'])")"
+          echo "  tag:      $TAG_VERSION"
+          echo "  manifest: $MANIFEST_VERSION"
+          if [ "$TAG_VERSION" != "$MANIFEST_VERSION" ]; then
+            echo "::error::Tag ${GITHUB_REF_NAME} does not match clawhub.json version ${MANIFEST_VERSION}."
+            exit 1
+          fi
+          echo "✅ tag and manifest agree"
+
+  publish:
+    name: Publish
+    needs: manifest-consistency
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+
+      - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6
+        with:
+          node-version: "22"
+
+      - name: Decide dry-run or real publish
+        id: mode
+        run: |
+          if [ "${{ github.event_name }}" = "push" ]; then
+            echo "dry_run=false" >> "$GITHUB_OUTPUT"
+          elif [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "dry_run=${{ inputs.dry_run }}" >> "$GITHUB_OUTPUT"
+          else
+            echo "dry_run=true" >> "$GITHUB_OUTPUT"
+          fi
+          echo "version=$(python3 -c "import json;print(json.load(open('clawhub.json'))['version'])")" >> "$GITHUB_OUTPUT"
+          echo "slug=$(python3 -c "import json;print(json.load(open('clawhub.json'))['name'])")" >> "$GITHUB_OUTPUT"
+
+      # Fail loudly rather than skipping: a real publish that silently does
+      # nothing looks identical to a successful one in the run summary.
+      - name: Require a token for a real publish
+        if: steps.mode.outputs.dry_run == 'false'
+        env:
+          CLAWHUB_TOKEN: ${{ secrets.CLAWHUB_TOKEN }}
+        run: |
+          if [ -z "$CLAWHUB_TOKEN" ]; then
+            echo "::error::CLAWHUB_TOKEN is not configured, so this publish would do nothing."
+            echo "::error::Add the secret in repository settings, then re-run."
+            exit 1
+          fi
+          echo "✅ token present"
+
+      - name: Publish
+        env:
+          CLAWHUB_TOKEN: ${{ secrets.CLAWHUB_TOKEN }}
+        run: |
+          ARGS=(
+            publish .
+            --slug "${{ steps.mode.outputs.slug }}"
+            --version "${{ steps.mode.outputs.version }}"
+            --tags latest
+            --no-input
+            --json
+            --source-repo "${{ github.repository }}"
+            --source-commit "${{ github.sha }}"
+            --source-ref "${{ github.ref }}"
+          )
+          if [ "${{ steps.mode.outputs.dry_run }}" = "true" ]; then
+            ARGS+=(--dry-run)
+            echo "Dry run — nothing will be published."
+          fi
+          npx --yes clawhub@0.23.3 "${ARGS[@]}"

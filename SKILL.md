@@ -2,12 +2,12 @@
 name: rotifer-self-evolving-agent
 description: Evolve AI agents with Rotifer Protocol. Use when you want to scan local agent capabilities, compare Genes in the Arena, inspect fitness scores, or upgrade weak capabilities with stronger alternatives.
 license: Apache-2.0
-compatibility: Requires network access and npx to run @rotifer/mcp-server@0.9.1 for Arena rankings and Gene metadata.
+compatibility: Requires network access and npx to run @rotifer/mcp-server@0.10.0 for Arena rankings and Gene metadata.
 metadata:
   author: rotifer-protocol
   version: "2.2.1"
   command: /evolve
-  mcp-package: "@rotifer/mcp-server@0.9.1"
+  mcp-package: "@rotifer/mcp-server@0.10.0"
 ---
 
 # Rotifer Self Evolving Agent
@@ -19,7 +19,7 @@ Your Agent gets stronger by competing, not by configuring. Scan capabilities, be
 This skill is invoked with `/evolve` and uses the Rotifer MCP Server at runtime:
 
 ```bash
-npx @rotifer/mcp-server@0.9.1
+npx @rotifer/mcp-server@0.10.0
 ```
 
 The MCP server provides Gene search, Arena rankings, fitness details, comparison, and local install operations.
@@ -121,10 +121,10 @@ No Gene is replaced without your confirmation.
 ## Security & Transparency
 
 ### Runtime dependency
-This Skill runs [`@rotifer/mcp-server@0.9.1`](https://www.npmjs.com/package/@rotifer/mcp-server/v/0.9.1) via `npx` at runtime. The package is **fetched from npm on first use** and cached locally. This is a standard MCP Skill pattern but means you are trusting remote code — review the source before use.
+This Skill runs [`@rotifer/mcp-server@0.10.0`](https://www.npmjs.com/package/@rotifer/mcp-server/v/0.10.0) via `npx` at runtime. The package is **fetched from npm on first use** and cached locally. This is a standard MCP Skill pattern but means you are trusting remote code — review the source before use.
 
 - **Source code**: [github.com/rotifer-protocol/rotifer-mcp-server](https://github.com/rotifer-protocol/rotifer-mcp-server)
-- **Verify**: `npm view @rotifer/mcp-server@0.9.1 dist.integrity`
+- **Verify**: `npm view @rotifer/mcp-server@0.10.0 dist.integrity`
 
 ### Network requests
 All API calls go to the Rotifer public API at `rotifer.dev` (hosted on Supabase). The MCP server is designed to contact only this endpoint. You can verify by capturing network traffic on first use.
