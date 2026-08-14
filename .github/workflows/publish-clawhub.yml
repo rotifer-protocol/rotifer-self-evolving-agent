@@ -109,7 +109,6 @@ jobs:
           # its display name. 2.3.0 shipped titled "rotifer-self-evolving-agent"
           # instead of "Rotifer Self Evolving Agent" for exactly that reason.
           echo "display_name=$(python3 -c "import json;print(json.load(open('clawhub.json'))['display_name'])")" >> "$GITHUB_OUTPUT"
-          echo "category=$(python3 -c "import json;print(json.load(open('clawhub.json'))['category'])")" >> "$GITHUB_OUTPUT"
 
       # Fail loudly rather than skipping: a real publish that silently does
       # nothing looks identical to a successful one in the run summary.
@@ -145,7 +144,6 @@ jobs:
             publish .
             --slug "${{ steps.mode.outputs.slug }}"
             --name "${{ steps.mode.outputs.display_name }}"
-            --categories "${{ steps.mode.outputs.category }}"
             --version "${{ steps.mode.outputs.version }}"
             --tags latest
             --no-input
