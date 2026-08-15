@@ -21,16 +21,23 @@ cp -r rotifer-self-evolving-agent/ ~/.openclaw/workspace/skills/rotifer-self-evo
 ## Usage
 
 ```bash
-/evolve                          # Scan Agent, recommend upgrades
-/evolve status                   # Agent capability dashboard
-/evolve upgrade <name>           # Replace with stronger alternative
-/evolve discover <query>         # Find capabilities by need
-/evolve arena <domain>           # View Arena rankings
-/evolve compare <id1> <id2>      # Compare candidates
-/evolve inspect <id>             # Full capability details
-/evolve create-agent <name>      # Compose an Agent from local Genes
+/evolve                          # Scan Agent, recommend upgrades      (read-only)
+/evolve status                   # Agent capability dashboard          (read-only)
+/evolve discover <query>         # Find capabilities by need           (read-only)
+/evolve arena <domain>           # View Arena rankings                 (read-only)
+/evolve compare <id1> <id2>      # Compare candidates                  (read-only)
+/evolve inspect <id>             # Full capability details             (read-only)
+
+/evolve upgrade <name>           # Propose a replacement — asks first, then installs
+/evolve create-agent <name>      # Write an Agent definition into this project
 /evolve run-agent <name>         # Run a local Agent
 ```
+
+⚠️ `/evolve upgrade` is the one command that changes what is installed. It
+replaces a Gene under `~/.rotifer/`, which changes what your Agent does at
+runtime, and the replacement is third-party code from the Rotifer marketplace.
+It shows you the specific swap and waits for your yes. The other read-only
+commands never modify anything.
 
 ## How it Works
 

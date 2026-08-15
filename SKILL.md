@@ -1,11 +1,11 @@
 ---
 name: rotifer-self-evolving-agent
-description: Evolve AI agents with Rotifer Protocol. Use when you want to scan local agent capabilities, compare Genes in the Arena, inspect fitness scores, or upgrade weak capabilities with stronger alternatives.
+description: Rank an Agent's Rotifer Genes against the Arena and swap in stronger ones. Invoked explicitly via /evolve — scan local capabilities, compare Genes, inspect fitness scores, and replace weak ones with user approval. Not for capabilities outside Rotifer.
 license: Apache-2.0
 compatibility: Requires network access and npx to run @rotifer/mcp-server@0.11.0 for Arena rankings and Gene metadata.
 metadata:
   author: rotifer-protocol
-  version: "2.3.2"
+  version: "2.3.3"
   command: /evolve
   mcp-package: "@rotifer/mcp-server@0.11.0"
 ---
@@ -45,7 +45,7 @@ Replace a capability with a stronger alternative:
 ```bash
 /evolve upgrade <name>
 ```
-Finds the top-ranked alternative in the same domain and installs it.
+Finds the top-ranked alternative in the same domain, shows you the swap, and installs it **only after you approve**. This is the one command that changes what is installed: it replaces a Gene under `~/.rotifer/` with third-party code from the marketplace, which changes what your Agent does at runtime. Every other `/evolve` command except `create-agent` is read-only.
 
 ## Discovery & Comparison
 
