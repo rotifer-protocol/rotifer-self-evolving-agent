@@ -3,7 +3,7 @@
   "display_name": "Rotifer Self Evolving Agent",
   "description": "Your Agent evolves itself. Scans capabilities, benchmarks against Arena rankings, and upgrades to stronger alternatives automatically. Powered by Rotifer Protocol's F(g) fitness function — no opinions, pure performance data.",
   "tagline": "Your Agent gets stronger by competing, not by configuring",
-  "version": "2.3.1",
+  "version": "2.3.2",
   "author": "rotifer-protocol",
   "license": "Apache-2.0",
   "category": "developer-tools",
