@@ -63,7 +63,7 @@ being precise about what that means. The full version is in
 
 | | |
 |---|---|
-| **Runs remote code** | `npx @rotifer/mcp-server@0.11.0`, fetched from npm on first use and cached. `/evolve run-agent` additionally shells out to the `rotifer` CLI, falling back to `npx -y @rotifer/playground` when it is not installed. Both are remote code — [read the source](https://github.com/rotifer-protocol/rotifer-mcp-server) or check `npm view @rotifer/mcp-server@0.11.0 dist.integrity` first. |
+| **Runs remote code** | `npx @rotifer/mcp-server@0.12.0`, fetched from npm on first use and cached. `/evolve run-agent` additionally shells out to the `rotifer` CLI, falling back to `npx -y @rotifer/playground` when it is not installed. Both are remote code — [read the source](https://github.com/rotifer-protocol/rotifer-mcp-server) or check `npm view @rotifer/mcp-server@0.12.0 dist.integrity` first. |
 | **Reads** | Installed Genes under `~/.rotifer/`, and Agents under `.rotifer/agents/` in the current project. |
 | **Writes** | Genes into `~/.rotifer/` (`/evolve upgrade`); Agent definitions into `.rotifer/agents/` in the current project (`/evolve create-agent`); an update-check cache at `~/.config/rotifer/update-check.json`. Nothing outside those three. |
 | **Sends** | Gene and Arena queries to the public Rotifer API, and one version check per day to `registry.npmjs.org`. **When you are logged in, each MCP tool call is also logged to Rotifer Cloud** — the tool's name, the Gene it acted on, whether it succeeded, how long it took, and your Rotifer user id. **Logged out, nothing is reported**; logged in, `ROTIFER_TELEMETRY=0` turns it off. Argument values, file contents, environment variables and your local configuration are not sent. |
