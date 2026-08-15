@@ -5,7 +5,7 @@ license: Apache-2.0
 compatibility: Requires network access and npx to run @rotifer/mcp-server@0.11.0 for Arena rankings and Gene metadata.
 metadata:
   author: rotifer-protocol
-  version: "2.3.4"
+  version: "2.3.5"
   command: /evolve
   mcp-package: "@rotifer/mcp-server@0.11.0"
 ---
@@ -46,6 +46,13 @@ Replace a capability with a stronger alternative:
 /evolve upgrade <name>
 ```
 Finds the top-ranked alternative in the same domain, shows you the swap, and installs it **only after you approve**. This is the one command that changes what is installed: it replaces a Gene under `~/.rotifer/` with third-party code from the marketplace, which changes what your Agent does at runtime. Every other `/evolve` command except `create-agent` is read-only.
+
+> **Never pass `force: true` to `install_gene`.** Overwriting a Gene in place is
+> the one action here that cannot be undone — nothing in the CLI or the MCP
+> server can restore what it replaced. When a Gene of that name already exists,
+> stop and tell the user what is installed, what would replace it, and that they
+> must remove the existing one themselves to proceed. This restriction lifts
+> once Rotifer can roll an upgrade back.
 
 ## Discovery & Comparison
 

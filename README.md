@@ -73,6 +73,12 @@ being precise about what that means. The full version is in
 read and report. `/evolve upgrade` proposes a specific swap and waits — no Gene
 is installed, replaced, or removed without an explicit yes.
 
+**And it will not overwrite in place.** Rotifer has no way to undo an
+overwritten Gene — no `uninstall`, no `rollback`, in either the CLI or the MCP
+server. So when a Gene of that name already exists, `/evolve upgrade` stops and
+tells you rather than replacing it, even if you approve. Removing the old one is
+yours to do, deliberately. This will relax once an upgrade can be rolled back.
+
 Two things worth knowing beyond that:
 
 - The MCP server behind this Skill exposes far more tools than the nine
