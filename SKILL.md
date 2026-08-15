@@ -90,7 +90,7 @@ Full technical details for a specific capability:
 
 ## How it Works
 
-Under the hood, Rotifer uses **Genes** — atomic, transferable AI capabilities that compete in an **Arena**. The fittest Genes (measured by the fitness function **F(g)**) survive and are automatically selected.
+Under the hood, Rotifer uses **Genes** — atomic, transferable AI capabilities that compete in an **Arena**. The fittest Genes (measured by the fitness function **F(g)**) rise to the top of the rankings automatically. Ranking is the automatic part; putting a Gene on your machine is not.
 
 ```text
 F(g) = [S_r · ln(1 + C_util) · (1 + R_rob)] / [L · Resource_Cost]
