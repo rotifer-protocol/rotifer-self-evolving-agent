@@ -29,6 +29,7 @@ cp -r rotifer-self-evolving-agent/ ~/.openclaw/workspace/skills/rotifer-self-evo
 /evolve inspect <id>             # Full capability details             (read-only)
 
 /evolve upgrade <name>           # Propose a replacement — asks first, then installs
+/evolve rollback [name]          # Undo the last replacement; no name lists what can be undone
 /evolve create-agent <name>      # Write an Agent definition into this project
 /evolve run-agent <name>         # Run a local Agent
 ```
@@ -36,8 +37,9 @@ cp -r rotifer-self-evolving-agent/ ~/.openclaw/workspace/skills/rotifer-self-evo
 ⚠️ `/evolve upgrade` is the one command that changes what is installed. It
 replaces a Gene under `~/.rotifer/`, which changes what your Agent does at
 runtime, and the replacement is third-party code from the Rotifer marketplace.
-It shows you the specific swap and waits for your yes. The other read-only
-commands never modify anything.
+It shows you the specific swap and waits for your yes — and keeps the copy it
+replaced, so `/evolve rollback` puts it back. The read-only commands never
+modify anything.
 
 ## How it Works
 
@@ -50,6 +52,7 @@ Key MCP tools used:
 | `evolve` | `list_local_agents` → `get_gene_detail` → `get_arena_rankings` → `search_genes` |
 | `status` | `list_local_agents` + `list_local_genes` + `get_gene_detail` |
 | `upgrade` | `get_arena_rankings` → `compare_genes` → `install_gene` |
+| `rollback` | `rollback_gene` |
 | `discover` | `search_genes` |
 | `inspect` | `get_gene_detail` |
 | `compare` | `compare_genes` |
@@ -63,7 +66,7 @@ being precise about what that means. The full version is in
 
 | | |
 |---|---|
-| **Runs remote code** | `npx @rotifer/mcp-server@0.12.0`, fetched from npm on first use and cached. `/evolve run-agent` additionally shells out to the `rotifer` CLI, falling back to `npx -y @rotifer/playground` when it is not installed. Both are remote code — [read the source](https://github.com/rotifer-protocol/rotifer-mcp-server) or check `npm view @rotifer/mcp-server@0.12.0 dist.integrity` first. |
+| **Runs remote code** | `npx @rotifer/mcp-server@0.14.0`, fetched from npm on first use and cached. `/evolve run-agent` additionally shells out to the `rotifer` CLI, falling back to `npx -y @rotifer/playground` when it is not installed. Both are remote code — [read the source](https://github.com/rotifer-protocol/rotifer-mcp-server) or check `npm view @rotifer/mcp-server@0.14.0 dist.integrity` first. |
 | **Reads** | Installed Genes under `~/.rotifer/`, and Agents under `.rotifer/agents/` in the current project. |
 | **Writes** | Genes into `~/.rotifer/` (`/evolve upgrade`); Agent definitions into `.rotifer/agents/` in the current project (`/evolve create-agent`); an update-check cache at `~/.config/rotifer/update-check.json`. Nothing outside those three. |
 | **Sends** | Gene and Arena queries to the public Rotifer API, and one version check per day to `registry.npmjs.org`. **When you are logged in, each MCP tool call is also logged to Rotifer Cloud** — the tool's name, the Gene it acted on, whether it succeeded, how long it took, and your Rotifer user id. **Logged out, nothing is reported**; logged in, `ROTIFER_TELEMETRY=0` turns it off. Argument values, file contents, environment variables and your local configuration are not sent. |
@@ -73,20 +76,22 @@ being precise about what that means. The full version is in
 read and report. `/evolve upgrade` proposes a specific swap and waits — no Gene
 is installed, replaced, or removed without an explicit yes.
 
-**And it will not overwrite in place.** Rotifer has no way to undo an
-overwritten Gene — no `uninstall`, no `rollback`, in either the CLI or the MCP
-server. So when a Gene of that name already exists, `/evolve upgrade` stops and
-tells you rather than replacing it, even if you approve. Removing the old one is
-yours to do, deliberately. This will relax once an upgrade can be rolled back.
+**And an upgrade can be undone.** Replacing a Gene moves the old copy into
+`<genes>/.snapshots/` first. Put it back with `/evolve rollback <name>`, or
+`rotifer rollback <name>` from a terminal — the two write the same format, so it
+does not matter which one replaced it. One snapshot per Gene: the next overwrite
+supersedes it and a rollback uses it up, so this undoes the last upgrade rather
+than keeping a history.
 
 Two things worth knowing beyond that:
 
-- The MCP server behind this Skill exposes far more tools than the nine
-  `/evolve` commands — publishing, compiling and login among them. The Skill
-  does not use them, but installing it does put them within the assistant's
-  reach.
-- Removing the Skill does not roll back capabilities it installed. They are
-  ordinary Genes under `~/.rotifer/`; remove them as you would any other.
+- **The assistant gets ten tools, not thirty-one.** This Skill launches the MCP
+  server with `--tools=evolve`. Publishing, compiling, Arena submission and
+  login are not exposed and are refused if called. Before version 2.4.0 all of
+  them were reachable.
+- Removing the Skill does not uninstall Genes it installed. They are ordinary
+  Genes under `~/.rotifer/`; `rotifer uninstall <name>` removes one, and that is
+  undoable too.
 
 ## Links
 

@@ -129,15 +129,24 @@ jobs:
                       or 'usage telemetry' in text):
                   bad.append(f"{where} no longer discloses that every MCP tool call is logged to Rotifer Cloud")
 
-          # Overwriting a Gene is the only irreversible action this Skill can
-          # take, and nothing in the CLI or the MCP server can undo it. So the
-          # assistant has to be told not to, and the reader has to be told it
-          # won't. Lift both when an upgrade can be rolled back.
-          if not re.search(r'force[^\n]{0,40}install_gene|install_gene[^\n]{0,40}force|never pass `force',
-                           surfaces['SKILL.md'], re.I):
-              bad.append("SKILL.md no longer tells the assistant not to pass force to install_gene")
-          if not re.search(r'not overwrite|will not overwrite|without overwriting', surfaces['README.md'], re.I):
-              bad.append("README.md no longer states that /evolve upgrade will not overwrite in place")
+          # Overwriting used to be unconditionally banned here because nothing
+          # could undo it. Snapshots and rollback replaced that ban, so what has
+          # to hold now is that both surfaces say an upgrade is reversible and
+          # name the way back — a Skill that overwrites while the docs stay
+          # silent about the undo is the same defect wearing the other face.
+          for where in ('README.md', 'SKILL.md'):
+              if not re.search(r'rollback', surfaces[where], re.I):
+                  bad.append(f"{where} no longer tells the reader how to undo an upgrade")
+
+          # The narrowed tool set is the answer to "installing this puts 31
+          # tools within the assistant's reach". If the manifest stops asking
+          # for it, the answer stops being true.
+          args = " ".join(manifest.get('mcp_server', {}).get('args', []))
+          if '--tools=' not in args:
+              bad.append("clawhub.json no longer launches the MCP server with a declared tool set")
+          for where in ('README.md', 'SKILL.md'):
+              if '--tools=' not in surfaces[where]:
+                  bad.append(f"{where} no longer says the tool surface is narrowed")
 
           if bad:
               for b in bad:
