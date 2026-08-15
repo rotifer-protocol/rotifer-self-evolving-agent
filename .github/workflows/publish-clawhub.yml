@@ -129,6 +129,15 @@ jobs:
                       or 'usage telemetry' in text):
                   bad.append(f"{where} no longer discloses that every MCP tool call is logged to Rotifer Cloud")
 
+          # ADR-316 D5. Overwriting a Gene is the only irreversible action here
+          # and nothing can undo it, so the assistant must be told not to, and
+          # the user must be told it won't. Lift this when rollback ships.
+          if not re.search(r'force[^\n]{0,40}install_gene|install_gene[^\n]{0,40}force|never pass `force',
+                           surfaces['SKILL.md'], re.I):
+              bad.append("SKILL.md no longer tells the assistant not to pass force to install_gene (ADR-316 D5)")
+          if not re.search(r'not overwrite|will not overwrite|without overwriting', surfaces['README.md'], re.I):
+              bad.append("README.md no longer states that /evolve upgrade will not overwrite in place (ADR-316 D5)")
+
           if bad:
               for b in bad:
                   print(f"::error::{b}")
