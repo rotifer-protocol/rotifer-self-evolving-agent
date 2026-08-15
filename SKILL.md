@@ -2,12 +2,12 @@
 name: rotifer-self-evolving-agent
 description: Rank an Agent's Rotifer Genes against the Arena and swap in stronger ones. Invoked explicitly via /evolve — scan local capabilities, compare Genes, inspect fitness scores, and replace weak ones with user approval. Not for capabilities outside Rotifer.
 license: Apache-2.0
-compatibility: Requires network access and npx to run @rotifer/mcp-server@0.11.0 for Arena rankings and Gene metadata.
+compatibility: Requires network access and npx to run @rotifer/mcp-server@0.12.0 for Arena rankings and Gene metadata.
 metadata:
   author: rotifer-protocol
-  version: "2.3.5"
+  version: "2.3.6"
   command: /evolve
-  mcp-package: "@rotifer/mcp-server@0.11.0"
+  mcp-package: "@rotifer/mcp-server@0.12.0"
 ---
 
 # Rotifer Self Evolving Agent
@@ -19,7 +19,7 @@ Your Agent gets stronger by competing, not by configuring. Scan capabilities, be
 This skill is invoked with `/evolve` and uses the Rotifer MCP Server at runtime:
 
 ```bash
-npx @rotifer/mcp-server@0.11.0
+npx @rotifer/mcp-server@0.12.0
 ```
 
 The MCP server provides Gene search, Arena rankings, fitness details, comparison, and local install operations.
@@ -128,17 +128,21 @@ No Gene is replaced without your confirmation.
 ## Security & Transparency
 
 ### Runtime dependency
-This Skill runs [`@rotifer/mcp-server@0.11.0`](https://www.npmjs.com/package/@rotifer/mcp-server/v/0.11.0) via `npx` at runtime. The package is **fetched from npm on first use** and cached locally. This is a standard MCP Skill pattern but means you are trusting remote code — review the source before use.
+This Skill runs [`@rotifer/mcp-server@0.12.0`](https://www.npmjs.com/package/@rotifer/mcp-server/v/0.12.0) via `npx` at runtime. The package is **fetched from npm on first use** and cached locally. This is a standard MCP Skill pattern but means you are trusting remote code — review the source before use.
 
 `/evolve run-agent` is a second such path: it invokes the `rotifer` CLI, and when that is not on `PATH` it falls back to `npx -y @rotifer/playground`.
 
 - **Source code**: [github.com/rotifer-protocol/rotifer-mcp-server](https://github.com/rotifer-protocol/rotifer-mcp-server)
-- **Verify**: `npm view @rotifer/mcp-server@0.11.0 dist.integrity`
+- **Verify**: `npm view @rotifer/mcp-server@0.12.0 dist.integrity`
 
 ### Network requests
 Gene, Arena and profile queries go to the Rotifer public API at `rotifer.dev` (hosted on Supabase). Beyond that the MCP server makes one version check per day against `registry.npmjs.org`, caching the answer in `~/.config/rotifer/update-check.json`; `npx` reaches the same registry when it fetches or refreshes a package.
 
-**Usage telemetry.** The MCP server also reports every tool call to Rotifer Cloud, so this is worth being exact about. After each call it sends, fire-and-forget, the tool's name, the Gene id the call acted on (when there is one), whether it succeeded, its latency in milliseconds, and your Rotifer user id — `null` unless you are logged in. It is sent whether or not you log in, failures are ignored silently, and there is currently no way to turn it off. Running a Gene while logged in additionally records that invocation, as the protocol's anti-manipulation metrics depend on it.
+**Usage telemetry.** When you are **logged in**, the MCP server reports each tool call to Rotifer Cloud, fire-and-forget: the tool's name, the Gene id the call acted on (when there is one), whether it succeeded, its latency in milliseconds, and your Rotifer user id. That is what `get_mcp_stats` reads back. Running a Gene while logged in also records that invocation, as the protocol's anti-manipulation metrics depend on it.
+
+**Logged out, nothing is reported.** To turn it off while logged in, set `ROTIFER_TELEMETRY=0` (`false` and `off` work too). Any other value is not an opt-out.
+
+Until `@rotifer/mcp-server@0.12.0` this reporting happened for everyone, logged in or not, with no way to stop it. If you have an older version cached, `npx` will fetch the pinned one above.
 
 What is **not** sent: the arguments you pass, the contents of any file, your environment variables, and your local configuration. Both loggers are `logMcpCall` and `logGeneInvocation` in [`src/cloud.ts`](https://github.com/rotifer-protocol/rotifer-mcp-server/blob/main/src/cloud.ts) — short enough to read in full, and a packet capture on first use will show you the same thing.
 
@@ -149,7 +153,7 @@ Logging in is explicit and optional — needed only to publish. `login` writes y
 
 ### Local data access
 - **Reads** installed Genes under `~/.rotifer/`, and Agent definitions under `.rotifer/agents/` in the current project, to generate upgrade recommendations.
-- Local configuration is **designed not to be transmitted** to any server. Comparison logic runs locally against data fetched from the public API. What does leave the machine on every call is the usage record described under [Network requests](#network-requests) — tool name, Gene id, outcome, latency, user id — and nothing beyond it. You can verify both by inspecting the [source code](https://github.com/rotifer-protocol/rotifer-mcp-server).
+- Local configuration is **designed not to be transmitted** to any server. Comparison logic runs locally against data fetched from the public API. The only thing that leaves the machine beyond your queries is the usage record described under [Network requests](#network-requests) — tool name, Gene id, outcome, latency, user id — sent only while you are logged in, and nothing beyond it. You can verify both by inspecting the [source code](https://github.com/rotifer-protocol/rotifer-mcp-server).
 - **Writes** are confined to three places: Genes into `~/.rotifer/` (`install_gene`), Agent definitions into `.rotifer/agents/` in the current project (`create_agent`), and the update-check cache above. Nothing else on disk is modified, and no Gene is installed, replaced, or removed without explicit user confirmation.
 - Removing this Skill does **not** roll back Genes it installed. They remain ordinary Genes under `~/.rotifer/`.
 
