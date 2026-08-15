@@ -119,6 +119,16 @@ jobs:
           if 'changes on your machine' not in readme.lower():
               bad.append("README.md is missing its 'What this Skill changes on your machine' section")
 
+          # The runtime package logs every tool call to Rotifer Cloud. 2.3.3 said
+          # "there is no other outbound traffic" and invited readers to verify by
+          # packet capture, which would have shown the opposite. Both surfaces
+          # have to keep saying it, in a way a reader can act on.
+          for where in ('README.md', 'SKILL.md'):
+              text = surfaces[where].lower()
+              if not (re.search(r'\blog(ged|s)?\b.{0,80}rotifer cloud|rotifer cloud.{0,80}\blog', text, re.S)
+                      or 'usage telemetry' in text):
+                  bad.append(f"{where} no longer discloses that every MCP tool call is logged to Rotifer Cloud")
+
           if bad:
               for b in bad:
                   print(f"::error::{b}")
