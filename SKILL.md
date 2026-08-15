@@ -123,22 +123,30 @@ No Gene is replaced without your confirmation.
 ### Runtime dependency
 This Skill runs [`@rotifer/mcp-server@0.11.0`](https://www.npmjs.com/package/@rotifer/mcp-server/v/0.11.0) via `npx` at runtime. The package is **fetched from npm on first use** and cached locally. This is a standard MCP Skill pattern but means you are trusting remote code — review the source before use.
 
+`/evolve run-agent` is a second such path: it invokes the `rotifer` CLI, and when that is not on `PATH` it falls back to `npx -y @rotifer/playground`.
+
 - **Source code**: [github.com/rotifer-protocol/rotifer-mcp-server](https://github.com/rotifer-protocol/rotifer-mcp-server)
 - **Verify**: `npm view @rotifer/mcp-server@0.11.0 dist.integrity`
 
 ### Network requests
-All API calls go to the Rotifer public API at `rotifer.dev` (hosted on Supabase). The MCP server is designed to contact only this endpoint. You can verify by capturing network traffic on first use.
+Gene, Arena and profile queries go to the Rotifer public API at `rotifer.dev` (hosted on Supabase). Beyond that the MCP server makes one version check per day against `registry.npmjs.org`, caching the answer in `~/.config/rotifer/update-check.json`; `npx` reaches the same registry when it fetches or refreshes a package. There is no other outbound traffic, and you can verify that by capturing network traffic on first use.
 
 ### Credentials
-The MCP server uses only the **Supabase anon key** (a public, client-safe key protected by Row Level Security). It does not request, store, or transmit any user secrets, API tokens, or environment variables.
+Public Gene and Arena data needs no login: the MCP server reads it with the **Supabase anon key** (a public, client-safe key protected by Row Level Security). It does not read your environment variables, nor secrets belonging to any other tool.
+
+Logging in is explicit and optional — needed only to publish. `login` writes your Rotifer session token to `~/.rotifer/credentials.json` with `0600` permissions, and it is sent only to the Rotifer API. `logout` deletes it.
 
 ### Local data access
-- **Reads** your local Agent configuration (`~/.rotifer/`) to generate upgrade recommendations.
+- **Reads** installed Genes under `~/.rotifer/`, and Agent definitions under `.rotifer/agents/` in the current project, to generate upgrade recommendations.
 - Local configuration is **designed not to be transmitted** to any server. Comparison logic runs locally against data fetched from the public API. You can verify this by inspecting the [source code](https://github.com/rotifer-protocol/rotifer-mcp-server).
-- **Write operations** (`install_gene`) only modify files under `~/.rotifer/` and require explicit user confirmation — no Gene is replaced silently.
+- **Writes** are confined to three places: Genes into `~/.rotifer/` (`install_gene`), Agent definitions into `.rotifer/agents/` in the current project (`create_agent`), and the update-check cache above. Nothing else on disk is modified, and no Gene is installed, replaced, or removed without explicit user confirmation.
+- Removing this Skill does **not** roll back Genes it installed. They remain ordinary Genes under `~/.rotifer/`.
+
+### Tool surface
+The nine `/evolve` commands are a front-end over a much larger MCP tool set, which also covers compiling, publishing, Arena submission and login. This Skill does not invoke those, but installing it does place them within the assistant's reach — the full list is in the [server source](https://github.com/rotifer-protocol/rotifer-mcp-server).
 
 ### Permission justification
-- `network:outbound` — required to query Arena rankings, Gene metadata, and fitness scores from the Rotifer public API.
+- `network:outbound` — required to query Arena rankings, Gene metadata, and fitness scores from the Rotifer public API, and to fetch the MCP server package itself from npm.
 
 ## Links
 

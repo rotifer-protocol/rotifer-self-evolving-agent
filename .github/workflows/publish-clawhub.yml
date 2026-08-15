@@ -82,6 +82,50 @@ jobs:
           fi
           echo "✅ tag and manifest agree"
 
+      # SkillSpector held 2.3.1 in review over this: the README promised
+      # "upgrade automatically" and never mentioned that upgrading rewrites
+      # what is installed on your machine. The disclosure existed — but only in
+      # SKILL.md, while the claim lived in the README, and nobody compared the
+      # two. Every surface that promises upgrades now has to carry the caveat
+      # that goes with it.
+      - name: Every surface that promises upgrades also says you confirm them
+        run: |
+          python3 - <<'PY'
+          import json, re, sys, pathlib
+
+          PROMISES = re.compile(r'\bupgrad|\breplac', re.I)
+          CONFIRMS = re.compile(r'\bconfirm|\bapprove', re.I)
+
+          manifest = json.loads(pathlib.Path('clawhub.json').read_text(encoding='utf-8'))
+          surfaces = {
+              'README.md': pathlib.Path('README.md').read_text(encoding='utf-8'),
+              'SKILL.md': pathlib.Path('SKILL.md').read_text(encoding='utf-8'),
+              'clawhub.json description': manifest.get('description', ''),
+          }
+
+          bad = []
+          for where, text in surfaces.items():
+              if PROMISES.search(text) and not CONFIRMS.search(text):
+                  bad.append(where)
+              else:
+                  print(f"  {where}: ok")
+
+          # The README is the page a reviewer reads first, and it is the one
+          # that was missing. Naming the section keeps it from quietly
+          # evaporating in a future edit.
+          readme = surfaces['README.md']
+          if 'changes on your machine' not in readme.lower():
+              bad.append("README.md is missing its 'What this Skill changes on your machine' section")
+
+          if bad:
+              for b in bad:
+                  print(f"::error::{b}")
+              print("::error::A Skill that rewrites local capabilities has to say so wherever it advertises doing it.")
+              sys.exit(1)
+
+          print("✅ every surface discloses")
+          PY
+
   publish:
     name: Publish
     needs: manifest-consistency
