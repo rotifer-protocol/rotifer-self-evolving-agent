@@ -5,7 +5,7 @@ license: Apache-2.0
 compatibility: Requires network access and npx to run @rotifer/mcp-server@0.15.0 for Arena rankings and Gene metadata.
 metadata:
   author: rotifer-protocol
-  version: "2.4.1"
+  version: "2.4.2"
   command: /evolve
   mcp-package: "@rotifer/mcp-server@0.15.0"
 ---
@@ -52,7 +52,9 @@ Replace a capability with a stronger alternative:
 ```bash
 /evolve upgrade <name>
 ```
-Finds the top-ranked alternative in the same domain, shows you the swap, and installs it **only after you approve**. This is the one command that changes what is installed: it replaces a Gene under `~/.rotifer/` with third-party code from the marketplace, which changes what your Agent does at runtime. `create-agent` writes an Agent definition and `run-agent` executes one; every other `/evolve` command is read-only.
+Finds the top-ranked alternative in the same domain, shows you the swap, and installs it **only after you approve**. This is the one command that changes what is installed: it replaces a Gene in the project's `genes/` directory with third-party code from the marketplace, which changes what your Agent does at runtime. `create-agent` writes an Agent definition and `run-agent` executes one; every other `/evolve` command is read-only.
+
+Genes are project files, not global ones. Install into the project the user is in — do not pass `project_root` to `install_gene` unless the user names a different project, and say which directory the Gene is going into when you propose the swap.
 
 > **Overwriting is now undoable, so it is allowed again.** `install_gene` with
 > `force: true` moves the replaced Gene into `<genes>/.snapshots/` before
@@ -158,14 +160,14 @@ What is **not** sent: the arguments you pass, the contents of any file, your env
 ### Credentials
 Public Gene and Arena data needs no login: the MCP server reads it with the **Supabase anon key** (a public, client-safe key protected by Row Level Security). It does not read your environment variables, nor secrets belonging to any other tool.
 
-This Skill cannot log you in: `login` is not in its tool set. If you have logged in elsewhere — `rotifer login` in a terminal — that session token lives in `~/.rotifer/credentials.json` with `0600` permissions, is sent only to the Rotifer API, and `rotifer logout` deletes it. Being logged in is what turns usage reporting on; see above.
+This Skill cannot log you in: `login` is not in its tool set. If you have logged in elsewhere — `rotifer login` in a terminal — that session token lives in `~/.rotifer/credentials.json` with `0600` permissions, is sent only to the Rotifer API, and `rotifer logout` deletes it. That file is the only thing any of this puts under `~/.rotifer/` — Genes and Agents are project files, described below. Being logged in is what turns usage reporting on; see above.
 
 ### Local data access
-- **Reads** installed Genes under `~/.rotifer/`, and Agent definitions under `.rotifer/agents/` in the current project, to generate upgrade recommendations.
+- **Reads** installed Genes under `genes/`, and Agent definitions under `.rotifer/agents/` — both in the current project — to generate upgrade recommendations.
 - Local configuration is **designed not to be transmitted** to any server. Comparison logic runs locally against data fetched from the public API. The only thing that leaves the machine beyond your queries is the usage record described under [Network requests](#network-requests) — tool name, Gene id, outcome, latency, user id — sent only while you are logged in, and nothing beyond it. You can verify both by inspecting the [source code](https://github.com/rotifer-protocol/rotifer-mcp-server).
-- **Writes** are confined to three places: Genes into `~/.rotifer/` (`install_gene`), Agent definitions into `.rotifer/agents/` in the current project (`create_agent`), and the update-check cache above. Nothing else on disk is modified, and no Gene is installed, replaced, or removed without explicit user confirmation.
+- **Writes** are three things and nothing else: Genes into `genes/` (`install_gene`), Agent definitions into `.rotifer/agents/` (`create_agent`), and the update-check cache above. The first two are **project files, written under a project root — not into your home directory**. That root defaults to the directory the server was started in, `rotifer.json`'s `genes_dir` can rename `genes/`, and `install_gene` takes a `project_root` argument, so the destination is whichever project the call names; these commands name the current one. Nothing else on disk is modified, and no Gene is installed, replaced, or removed without explicit user confirmation.
 - **An overwrite is recoverable.** `install_gene` with `force` moves the replaced copy into `<genes>/.snapshots/` before writing; `rollback_gene` restores it, and so does `rotifer rollback <name>` from a terminal — both write the same format. One snapshot per Gene: the next overwrite supersedes it, a rollback consumes it.
-- Removing this Skill does **not** uninstall Genes it installed. They remain ordinary Genes under `~/.rotifer/`; `rotifer uninstall <name>` removes one, and that is undoable through the same snapshot.
+- Removing this Skill does **not** uninstall Genes it installed. They stay in that project's `genes/` directory as ordinary Genes; `rotifer uninstall <name>` removes one, and that is undoable through the same snapshot.
 
 ### Tool surface
 The MCP server can expose 31 tools, covering compiling, publishing, Arena submission and login. This Skill launches it with `--tools=evolve`, which exposes ten:
