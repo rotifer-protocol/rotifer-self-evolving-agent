@@ -36,8 +36,9 @@ cp -r rotifer-self-evolving-agent/ ~/.openclaw/workspace/skills/rotifer-self-evo
 ```
 
 ⚠️ `/evolve upgrade` is the one command that changes what is installed. It
-replaces a Gene under `~/.rotifer/`, which changes what your Agent does at
-runtime, and the replacement is third-party code from the Rotifer marketplace.
+replaces a Gene in your project's `genes/` directory, which changes what your
+Agent does at runtime, and the replacement is third-party code from the Rotifer
+marketplace.
 It shows you the specific swap and waits for your yes — and keeps the copy it
 replaced, so `/evolve rollback` puts it back.
 
@@ -78,11 +79,11 @@ being precise about what that means. The full version is in
 | | |
 |---|---|
 | **Runs remote code** | `npx @rotifer/mcp-server@0.15.0`, fetched from npm on first use and cached. `/evolve run-agent` additionally shells out to the `rotifer` CLI, falling back to `npx -y @rotifer/playground` when it is not installed. Both are remote code — [read the source](https://github.com/rotifer-protocol/rotifer-mcp-server) or check `npm view @rotifer/mcp-server@0.15.0 dist.integrity` first. |
-| **Reads** | Installed Genes under `~/.rotifer/`, and Agents under `.rotifer/agents/` in the current project. |
+| **Reads** | Installed Genes under `genes/`, and Agents under `.rotifer/agents/` — both in the project you are working in. |
 | **Executes** | `/evolve run-agent` runs an Agent's Genes, inside the WASM sandbox. This Skill cannot disable that sandbox. |
-| **Writes** | Genes into `~/.rotifer/` (`/evolve upgrade`); Agent definitions into `.rotifer/agents/` in the current project (`/evolve create-agent`); an update-check cache at `~/.config/rotifer/update-check.json`. Nothing outside those three. |
+| **Writes** | Genes into `genes/` (`/evolve upgrade`) and Agent definitions into `.rotifer/agents/` (`/evolve create-agent`) — both are project files, written under the project root, not into your home directory. That root defaults to the directory you are in and is an argument the install tool accepts, so it is whichever project the call names; these commands name the current one, and `rotifer.json`'s `genes_dir` can rename `genes/`. Plus an update-check cache at `~/.config/rotifer/update-check.json`. Nothing outside those three. |
 | **Sends** | Gene and Arena queries to the public Rotifer API, and one version check per day to `registry.npmjs.org`. **When you are logged in, each MCP tool call is also logged to Rotifer Cloud** — the tool's name, the Gene it acted on, whether it succeeded, how long it took, and your Rotifer user id. **Logged out, nothing is reported**; logged in, `ROTIFER_TELEMETRY=0` turns it off. Argument values, file contents, environment variables and your local configuration are not sent. |
-| **Credentials** | It does not read your environment variables or other tools' secrets. Public data needs no login. If you do log in, your Rotifer session token is written to `~/.rotifer/credentials.json` with `0600` permissions and sent only to the Rotifer API. |
+| **Credentials** | It does not read your environment variables or other tools' secrets. Public data needs no login. If you do log in, your Rotifer session token is written to `~/.rotifer/credentials.json` with `0600` permissions and sent only to the Rotifer API. That file is the only thing any of this puts under `~/.rotifer/`. |
 
 **Every replacement is confirmed by you.** `/evolve` and `/evolve status` only
 read and report. `/evolve upgrade` proposes a specific swap and waits — no Gene
@@ -106,9 +107,9 @@ Two things worth knowing beyond that:
   server is launched with `--allow=no-sandbox`, and this Skill does not launch
   it that way. Ten tools with an escape hatch in one of them would not be ten
   tools.
-- Removing the Skill does not uninstall Genes it installed. They are ordinary
-  Genes under `~/.rotifer/`; `rotifer uninstall <name>` removes one, and that is
-  undoable too.
+- Removing the Skill does not uninstall Genes it installed. They stay in that
+  project's `genes/` directory as ordinary Genes; `rotifer uninstall <name>`
+  removes one, and that is undoable too.
 
 ## Links
 
