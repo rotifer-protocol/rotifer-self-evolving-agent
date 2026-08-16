@@ -31,15 +31,24 @@ cp -r rotifer-self-evolving-agent/ ~/.openclaw/workspace/skills/rotifer-self-evo
 /evolve upgrade <name>           # Propose a replacement — asks first, then installs
 /evolve rollback [name]          # Undo the last replacement; no name lists what can be undone
 /evolve create-agent <name>      # Write an Agent definition into this project
-/evolve run-agent <name>         # Run a local Agent
+
+/evolve run-agent <name>         # EXECUTES a local Agent — runs Gene code
 ```
 
 ⚠️ `/evolve upgrade` is the one command that changes what is installed. It
 replaces a Gene under `~/.rotifer/`, which changes what your Agent does at
 runtime, and the replacement is third-party code from the Rotifer marketplace.
 It shows you the specific swap and waits for your yes — and keeps the copy it
-replaced, so `/evolve rollback` puts it back. The read-only commands never
-modify anything.
+replaced, so `/evolve rollback` puts it back.
+
+⚠️ `/evolve run-agent` does not change what is installed, but it is not
+read-only either: it **executes** the Genes in an Agent, through the `rotifer`
+CLI or an `npx` fallback. Gene code runs inside a WASM sandbox, and this Skill
+cannot switch that off — `no_sandbox` is refused unless the server was launched
+with `--allow=no-sandbox`, which it is not. Running it unsandboxed is something
+only you can do, from a terminal.
+
+The six commands marked read-only never modify or execute anything.
 
 ## How it Works
 
@@ -57,6 +66,8 @@ Key MCP tools used:
 | `inspect` | `get_gene_detail` |
 | `compare` | `compare_genes` |
 | `arena` | `get_arena_rankings` |
+| `create-agent` | `create_agent` |
+| `run-agent` | `agent_run` |
 
 ## What this Skill changes on your machine
 
@@ -66,8 +77,9 @@ being precise about what that means. The full version is in
 
 | | |
 |---|---|
-| **Runs remote code** | `npx @rotifer/mcp-server@0.14.0`, fetched from npm on first use and cached. `/evolve run-agent` additionally shells out to the `rotifer` CLI, falling back to `npx -y @rotifer/playground` when it is not installed. Both are remote code — [read the source](https://github.com/rotifer-protocol/rotifer-mcp-server) or check `npm view @rotifer/mcp-server@0.14.0 dist.integrity` first. |
+| **Runs remote code** | `npx @rotifer/mcp-server@0.15.0`, fetched from npm on first use and cached. `/evolve run-agent` additionally shells out to the `rotifer` CLI, falling back to `npx -y @rotifer/playground` when it is not installed. Both are remote code — [read the source](https://github.com/rotifer-protocol/rotifer-mcp-server) or check `npm view @rotifer/mcp-server@0.15.0 dist.integrity` first. |
 | **Reads** | Installed Genes under `~/.rotifer/`, and Agents under `.rotifer/agents/` in the current project. |
+| **Executes** | `/evolve run-agent` runs an Agent's Genes, inside the WASM sandbox. This Skill cannot disable that sandbox. |
 | **Writes** | Genes into `~/.rotifer/` (`/evolve upgrade`); Agent definitions into `.rotifer/agents/` in the current project (`/evolve create-agent`); an update-check cache at `~/.config/rotifer/update-check.json`. Nothing outside those three. |
 | **Sends** | Gene and Arena queries to the public Rotifer API, and one version check per day to `registry.npmjs.org`. **When you are logged in, each MCP tool call is also logged to Rotifer Cloud** — the tool's name, the Gene it acted on, whether it succeeded, how long it took, and your Rotifer user id. **Logged out, nothing is reported**; logged in, `ROTIFER_TELEMETRY=0` turns it off. Argument values, file contents, environment variables and your local configuration are not sent. |
 | **Credentials** | It does not read your environment variables or other tools' secrets. Public data needs no login. If you do log in, your Rotifer session token is written to `~/.rotifer/credentials.json` with `0600` permissions and sent only to the Rotifer API. |
@@ -89,6 +101,11 @@ Two things worth knowing beyond that:
   server with `--tools=evolve`. Publishing, compiling, Arena submission and
   login are not exposed and are refused if called. Before version 2.4.0 all of
   them were reachable.
+- **And it cannot leave the sandbox.** `agent_run` accepts a `no_sandbox`
+  option that would run Gene code as plain Node.js. It is refused unless the
+  server is launched with `--allow=no-sandbox`, and this Skill does not launch
+  it that way. Ten tools with an escape hatch in one of them would not be ten
+  tools.
 - Removing the Skill does not uninstall Genes it installed. They are ordinary
   Genes under `~/.rotifer/`; `rotifer uninstall <name>` removes one, and that is
   undoable too.
