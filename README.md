@@ -78,7 +78,7 @@ being precise about what that means. The full version is in
 
 | | |
 |---|---|
-| **Runs remote code** | `npx @rotifer/mcp-server@0.15.1`, fetched from npm on first use and cached. `/evolve run-agent` additionally shells out to the `rotifer` CLI, falling back to `npx -y @rotifer/playground` when it is not installed. Both are remote code — [read the source](https://github.com/rotifer-protocol/rotifer-mcp-server) or check `npm view @rotifer/mcp-server@0.15.1 dist.integrity` first. |
+| **Runs remote code** | `npx @rotifer/mcp-server@0.16.0`, fetched from npm on first use and cached. `/evolve run-agent` additionally shells out to the `rotifer` CLI, falling back to `npx -y @rotifer/playground` when it is not installed. Both are remote code — [read the source](https://github.com/rotifer-protocol/rotifer-mcp-server) or check `npm view @rotifer/mcp-server@0.16.0 dist.integrity` first. |
 | **Reads** | Installed Genes under `genes/`, and Agents under `.rotifer/agents/` — both in the project you are working in. |
 | **Executes** | `/evolve run-agent` runs an Agent's Genes, inside the WASM sandbox. This Skill cannot disable that sandbox. Each run appends a line to `~/.rotifer/run-logs/<gene>.jsonl` and updates a fitness file beside the Agent — both local, neither transmitted. |
 | **Writes** | Genes into `genes/` (`/evolve upgrade`) and Agent definitions into `.rotifer/agents/` (`/evolve create-agent`) — both are project files, written under the project root, not into your home directory. That root defaults to the directory you are in and is an argument the install tool accepts, so it is whichever project the call names; these commands name the current one, and `rotifer.json`'s `genes_dir` can rename `genes/`. Plus a run log at `~/.rotifer/run-logs/<gene>.jsonl` when you run an Agent, and an update-check cache at `~/.config/rotifer/update-check.json`. Nothing outside those four. |
@@ -101,7 +101,9 @@ Two things worth knowing beyond that:
 - **The assistant gets ten tools, not thirty-one.** This Skill launches the MCP
   server with `--tools=evolve`. Publishing, compiling, Arena submission and
   login are not exposed and are refused if called. Before version 2.4.0 all of
-  them were reachable.
+  them were reachable. The server's read-only resource URIs travel with that
+  set — the three whose tools are excluded are dropped and refused, so there is
+  no second door to the same data.
 - **And it cannot leave the sandbox.** `agent_run` accepts a `no_sandbox`
   option that would run Gene code as plain Node.js. It is refused unless the
   server is launched with `--allow=no-sandbox`, and this Skill does not launch
