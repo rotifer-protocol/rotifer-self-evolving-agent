@@ -2,12 +2,12 @@
 name: rotifer-self-evolving-agent
 description: Rank an Agent's Rotifer Genes against the Arena and swap in stronger ones. Invoked explicitly via /evolve — scan local capabilities, compare Genes, inspect fitness scores, and replace weak ones with user approval. Not for capabilities outside Rotifer.
 license: Apache-2.0
-compatibility: Requires network access and npx to run @rotifer/mcp-server@0.16.0 for Arena rankings and Gene metadata.
+compatibility: Requires network access and npx to run @rotifer/mcp-server@0.16.1 for Arena rankings and Gene metadata.
 metadata:
   author: rotifer-protocol
-  version: "2.4.4"
+  version: "2.4.5"
   command: /evolve
-  mcp-package: "@rotifer/mcp-server@0.16.0"
+  mcp-package: "@rotifer/mcp-server@0.16.1"
 ---
 
 # Rotifer Self Evolving Agent
@@ -19,7 +19,7 @@ Your Agent gets stronger by competing, not by configuring. Scan capabilities, be
 This skill is invoked with `/evolve` and uses the Rotifer MCP Server at runtime:
 
 ```bash
-npx @rotifer/mcp-server@0.16.0 --tools=evolve
+npx @rotifer/mcp-server@0.16.1 --tools=evolve
 ```
 
 `--tools=evolve` is not decoration. The server can expose 31 tools, including
@@ -139,12 +139,12 @@ No Gene is replaced without your confirmation.
 ## Security & Transparency
 
 ### Runtime dependency
-This Skill runs [`@rotifer/mcp-server@0.16.0`](https://www.npmjs.com/package/@rotifer/mcp-server/v/0.16.0) via `npx` at runtime. The package is **fetched from npm on first use** and cached locally. This is a standard MCP Skill pattern but means you are trusting remote code — review the source before use.
+This Skill runs [`@rotifer/mcp-server@0.16.1`](https://www.npmjs.com/package/@rotifer/mcp-server/v/0.16.1) via `npx` at runtime. The package is **fetched from npm on first use** and cached locally. This is a standard MCP Skill pattern but means you are trusting remote code — review the source before use.
 
 `/evolve run-agent` is a second such path: it invokes the `rotifer` CLI, and when that is not on `PATH` it falls back to `npx -y @rotifer/playground`.
 
 - **Source code**: [github.com/rotifer-protocol/rotifer-mcp-server](https://github.com/rotifer-protocol/rotifer-mcp-server)
-- **Verify**: `npm view @rotifer/mcp-server@0.16.0 dist.integrity`
+- **Verify**: `npm view @rotifer/mcp-server@0.16.1 dist.integrity`
 
 ### Network requests
 Gene, Arena and profile queries go to the Rotifer public API at `rotifer.dev` (hosted on Supabase). Beyond that the MCP server makes one version check per day against `registry.npmjs.org`, caching the answer in `~/.config/rotifer/update-check.json`; `npx` reaches the same registry when it fetches or refreshes a package.
@@ -153,7 +153,7 @@ Gene, Arena and profile queries go to the Rotifer public API at `rotifer.dev` (h
 
 **Logged out, no usage record is sent.** One thing goes out either way: installing a Gene bumps that Gene's public install counter — a single request carrying the Gene id and nothing else, no user id and no session. It is how the Arena counts installs.
 
-**`ROTIFER_TELEMETRY=0` stops all three** (`false` and `off` work too; any other value is not an opt-out). Until `@rotifer/mcp-server@0.16.0` it did not stop the install counter, and this section said "logged out, nothing is reported", which was not true of an install.
+**`ROTIFER_TELEMETRY=0` stops all three** (`false` and `off` work too; any other value is not an opt-out). Until `@rotifer/mcp-server@0.16.1` it did not stop the install counter, and this section said "logged out, nothing is reported", which was not true of an install.
 
 What is **not** sent: the arguments you pass, the contents of any file, your environment variables, and your local configuration. The three are `logMcpCall`, `logGeneInvocation` and the `track_download` call inside `installGene`, all in [`src/cloud.ts`](https://github.com/rotifer-protocol/rotifer-mcp-server/blob/main/src/cloud.ts) — short enough to read in full. Nothing else here reports on its own initiative: every other outbound call is a tool you invoked doing its job, the WASM artifact download, or the daily version check above.
 
@@ -182,9 +182,9 @@ The MCP server can expose 31 tools, covering compiling, publishing, Arena submis
 
 The other 21 are not listed and are refused if called anyway, so what the assistant can reach through this Skill is the ten above and nothing else. Until version 2.4.0 all 31 were reachable — if you have an older copy, that is what it does.
 
-The ten cover the whole surface, not just the tool list. The server also serves **resources** — read-only URIs returning the same data as tools of the same name — and those travel with the set: three of the seven (`rotifer://genes/{id}/stats`, `rotifer://developers/{name}`, `rotifer://leaderboard`) are dropped from the listing and refused if read directly, because their tools were not asked for. Until `@rotifer/mcp-server@0.16.0` they were readable whatever the tool set said. **Prompts** are not restricted, and are not meant to be: a prompt returns text and reaches nothing — no query, no file, no process.
+The ten cover the whole surface, not just the tool list. The server also serves **resources** — read-only URIs returning the same data as tools of the same name — and those travel with the set: three of the seven (`rotifer://genes/{id}/stats`, `rotifer://developers/{name}`, `rotifer://leaderboard`) are dropped from the listing and refused if read directly, because their tools were not asked for. Until `@rotifer/mcp-server@0.16.1` they were readable whatever the tool set said. **Prompts** are not restricted, and are not meant to be: a prompt returns text and reaches nothing — no query, no file, no process.
 
-You can check rather than take our word for it: `npx @rotifer/mcp-server@0.16.0 --tools=evolve` and ask it to list its tools.
+You can check rather than take our word for it: `npx @rotifer/mcp-server@0.16.1 --tools=evolve` and ask it to list its tools.
 
 ### Permission justification
 - `network:outbound` — query Arena rankings, Gene metadata and fitness scores from the Rotifer public API, and fetch the MCP server package itself from npm.
