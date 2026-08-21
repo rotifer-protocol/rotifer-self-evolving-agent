@@ -1,4 +1,4 @@
-# Rotifer Self Evolving Agent
+# Rotifer Self-Evolving Agent
 
 > Your Agent gets stronger by competing, not by configuring. Scan capabilities, benchmark against Arena rankings, and upgrade to whatever wins.
 
