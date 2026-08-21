@@ -202,7 +202,7 @@ jobs:
           echo "slug=$(python3 -c "import json;print(json.load(open('clawhub.json'))['name'])")" >> "$GITHUB_OUTPUT"
           # Without --name the CLI falls back to the slug, so the listing loses
           # its display name. 2.3.0 shipped titled "rotifer-self-evolving-agent"
-          # instead of "Rotifer Self Evolving Agent" for exactly that reason.
+          # instead of "Rotifer Self-Evolving Agent" for exactly that reason.
           echo "display_name=$(python3 -c "import json;print(json.load(open('clawhub.json'))['display_name'])")" >> "$GITHUB_OUTPUT"
 
       # Fail loudly rather than skipping: a real publish that silently does

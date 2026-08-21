@@ -5,12 +5,12 @@ license: Apache-2.0
 compatibility: Requires network access and npx to run @rotifer/mcp-server@0.16.1 for Arena rankings and Gene metadata.
 metadata:
   author: rotifer-protocol
-  version: "2.4.5"
+  version: "2.4.6"
   command: /evolve
   mcp-package: "@rotifer/mcp-server@0.16.1"
 ---
 
-# Rotifer Self Evolving Agent
+# Rotifer Self-Evolving Agent
 
 Your Agent gets stronger by competing, not by configuring. Scan capabilities, benchmark against [Arena rankings](https://rotifer.dev), and upgrade to fitter alternatives — driven by objective performance data, not opinions.
 
