@@ -1,3 +1,11 @@
+> [!IMPORTANT]
+> **This Skill's source has moved** to
+> [`rotifer-playground/skills/rotifer-self-evolving-agent/`](https://github.com/rotifer-protocol/rotifer-playground/tree/main/skills/rotifer-self-evolving-agent)
+> — one repository now carries all five ClawHub listings, one publish
+> pipeline, and the gates that keep their facts in agreement. The ClawHub
+> listing, slug and version line continue unchanged from there. This
+> repository is kept as history and is archived.
+
 # Rotifer Self-Evolving Agent
 
 > Your Agent gets stronger by competing, not by configuring. Scan capabilities, benchmark against Arena rankings, and upgrade to whatever wins.
